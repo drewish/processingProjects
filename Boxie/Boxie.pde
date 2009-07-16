@@ -9,7 +9,10 @@ float x, y, z;
 
 void setup() {
   size(1024, 768, OPENGL);
+  hint(ENABLE_OPENGL_4X_SMOOTH);
   perspective();
+
+  textFont(createFont("Monaco", 18));
 
   println(Serial.list());
   port = new Serial(this, Serial.list()[0], 9600);
@@ -18,55 +21,97 @@ void setup() {
 
 void draw() {
   background(200);
-  
+
   lights();
-  translate(width / 2, height / 2, 0);
 
+  beginCamera();
+  camera();
+//  translate(width * - (float) mouseX / width, height *  - (float) mouseY / height , 0);
+  translate(0, height *  - (float) mouseY / height , 0);
+  rotateY(PI * ((float) mouseX / width));
+  endCamera();
+
+  text("x: " + nfs(x * 100, 3, 1), 10, 20);
+  text("y: " + nfs(y * 100, 3, 1), 10, 40);
+  text("z: " + nfs(z * 100, 3, 1), 10, 60);
+  text("rot 1: " + nfs(atan2(x, z), 1, 2), 10, 80);
+  text("rot 2: " + nfs(atan2(z, x), 1, 2), 10, 100);
+
+  // Draw the axis
+  line(-500, 0, 0, 500, 0, 0);
+  line(0, -350, 0, 0, 350, 0);
+  line(0, 0, -500, 0, 0, 500);
+  text("x", 500, 0, 0);
+  text("y", 0, 350, 0);
+  text("z", 0, 0, 500);
+
+
+
+  /*
   float phi = atan2(y, x);
-  float theta = acos(z / sqrt(sq(x) + sq(y) + sq(z)));
-  println(phi + "\t" + theta);
+   float theta = acos(z / sqrt(sq(x) + sq(y) + sq(z)));
+   println(phi + "\t" + theta);
+   
+   //  rotateZ(phi);
+   rotateX(theta);
+   */
+   
+  stroke(255, 0, 0);
+  pushMatrix();
+  translate(x * 100, y * 100, z * 100);
+  box(5);
+  popMatrix();
   
-//  rotateZ(phi);
-  rotateX(theta);
+  pushMatrix();
+  translate(-x * 100, -y * 100, -z * 100);
+  box(5);
+  popMatrix();
+  
 
-//  rotateY(PI * ((float) mouseX / width));
-//  rotateX(PI * -((float) mouseY / height));
-  box(400);
+  //  strokeWeight(10);  // Beastly
 }
 
+int[] prevSample = new int[3];
+
 void serialEvent(Serial p) {
-  String input = p.readString().trim();
+  String s = p.readString().trim();
   // Check that it's well formed.
-  if (!input.matches("\\d{1,3},\\d{1,3},\\d{1,3},\\d")) {
-     println("Invalid: " + input); 
-     return;
+  if (!s.matches("\\d{1,3},\\d{1,3},\\d{1,3},\\d")) {
+    println("Invalid: " + s); 
+    return;
   }
 
   // Convert values to integers
-  String[] parts = input.split(",");
+  String[] parts = s.split(",");
   int ints[] = new int[4];
   for (int i = 0; i < 4; i++) {
     ints[i] = Integer.parseInt(parts[i]);
   }
-  
+
   // Compare parity.
   if (ints[3] != (ints[0] + ints[1] + ints[2]) % 10) {
-     println("Corrupt: " + input);
-     return;
+    println("Corrupt: " + s);
+    return;
   }
   
-  // Convert values to floats
-  float floats[] = new float[4];
-  for (int i = 0; i < 4; i++) {
-    floats[i] = map(ints[i], 0, 640, -3, 3);
+  int[] avg = prevSample.clone();
+  for (int i = 0; i < 3; i++) {
+    if (abs(ints[i] - prevSample[i]) > 1) {
+      prevSample[i] = ints[i];
+    }
   }
   
-//  println(input);
-  // Remap the values from the sensor style axis to processing's
-  x = map(ints[0], 0, 640, -3, 3);
-  y = map(ints[1], 0, 640, -3, 3);
-  z = map(ints[2], 0, 640, -3, 3);
-  
-//      println(x + " " + y + " " + z);
+//  println(s);
+  // Sensor values range from 0-3.3v but Arduino samples 0-5v so we loose part
+  // of it's 0-1023 value range. The axis orientation is different as well so 
+  // we need to remap the values from the sensor style axis to processing's:
+  // x => -z  y => -x  z => y
+  z = map(avg[0], 0, 640, 3, -3);
+  x = map(avg[1], 0, 640, 3, -3);
+  y = map(avg[2], 0, 640, -3, 3);
+
+//  print(ints[0] + " " + ints[1] + " " + ints[2] + "\t");
+//  println(avg[0] + " " + avg[1] + " " + avg[2]);
 }
+
 
