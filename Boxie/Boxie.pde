@@ -25,10 +25,9 @@ void draw() {
   lights();
 
   beginCamera();
-  camera();
-//  translate(width * - (float) mouseX / width, height *  - (float) mouseY / height , 0);
-  translate(0, height *  - (float) mouseY / height , 0);
-  rotateY(PI * ((float) mouseX / width));
+  float yfrac = map(mouseY, 0, height, -1, 1);
+  float xfrac = map(mouseX, 0, width, 0, PI);
+  camera(.5 * width * cos(xfrac), .75 * height * -yfrac, .5 * width * sin(xfrac), 0, 0, 0, 0, 1, 0);
   endCamera();
 
   text("x: " + nfs(x * 100, 3, 1), 10, 20);
@@ -45,16 +44,6 @@ void draw() {
   text("y", 0, 350, 0);
   text("z", 0, 0, 500);
 
-
-
-  /*
-  float phi = atan2(y, x);
-   float theta = acos(z / sqrt(sq(x) + sq(y) + sq(z)));
-   println(phi + "\t" + theta);
-   
-   //  rotateZ(phi);
-   rotateX(theta);
-   */
    
   stroke(255, 0, 0);
   pushMatrix();
@@ -66,9 +55,6 @@ void draw() {
   translate(-x * 100, -y * 100, -z * 100);
   box(5);
   popMatrix();
-  
-
-  //  strokeWeight(10);  // Beastly
 }
 
 int[] prevSample = new int[3];
