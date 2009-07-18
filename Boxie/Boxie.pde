@@ -63,7 +63,7 @@ void serialEvent(Serial p) {
   String s = p.readString().trim();
   // Check that it's well formed.
   if (!s.matches("\\d{1,3},\\d{1,3},\\d{1,3},\\d")) {
-    println("Invalid: " + s); 
+    println(hour() + ":" + nf(minute(), 2) + ":" + nf(second(), 2) + " Invalid: " + s); 
     return;
   }
 
@@ -76,7 +76,7 @@ void serialEvent(Serial p) {
 
   // Compare parity.
   if (ints[3] != (ints[0] + ints[1] + ints[2]) % 10) {
-    println("Corrupt: " + s);
+    println(hour() + ":" + nf(minute(), 2) + ":" + nf(second(), 2) + " Corrupt: " + s);
     return;
   }
   
