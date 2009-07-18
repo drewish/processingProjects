@@ -25,9 +25,8 @@ void draw() {
   lights();
 
   beginCamera();
-  float yfrac = map(mouseY, 0, height, -1, 1);
-  float xfrac = map(mouseX, 0, width, 0, PI);
-  camera(.5 * width * cos(xfrac), .75 * height * -yfrac, .5 * width * sin(xfrac), 0, 0, 0, 0, 1, 0);
+  float xfract = map(mouseX, 0, width, 0, PI);
+  camera(cos(xfract) * .5 * width, map(mouseY, 0, height, -height, height), sin(xfract) * .5 * width, 0, 0, 0, 0, 1, 0);
   endCamera();
 
   text("x: " + nfs(x * 100, 3, 1), 10, 20);
