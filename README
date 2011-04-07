@@ -1,1 +1,14 @@
 Processing sketches created by andrew morton <drewish@katherinehouse.com>
+
+Some of these run Arduino code from https://github.com/drewish/arduinoProjects
+
+Boxie
+Accepts input from the serial port expecting to find an XBee running the
+talking to an Arduino with a 3-axis accelerometer running the Tipper sketch.
+The input is transformed into rotations of a 3d cube.
+
+Echo
+Sends strings of characters to the serial port and displays any results.
+
+Harmonic
+Demonstrates adding harmonics to a note.
